@@ -1,30 +1,30 @@
 package dev.akanksha.surlizer.services;
+
+import dev.akanksha.surlizer.models.UrlMap;
+import dev.akanksha.surlizer.repositories.UrlMapRepository;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 public class UrlService {
-    private final Map<String, String> map;
-    private final Map<String, String> reverseMap;
-
-    public UrlService() {
-        this.map = new ConcurrentHashMap<>();
-        this.reverseMap = new ConcurrentHashMap<>();
-    }
-
+    
+    private final  UrlMapRepository urlMapRepository;
+    private static final Logger logger = LoggerFactory.getLogger(Logger.class);
 
     public Optional<String> retreiveUrl(String shortUrl) {
-        return Optional.ofNullable(map.get(shortUrl));
+        return urlMapRepository.findByShortUrl(shortUrl);
     }
 
     public String createShortUrl(String url) {
-        if(reverseMap.containsKey(url)) return reverseMap.get(url);
-        String shortUrl = "surlized" + (map.size() + 1);
-        map.put(shortUrl, url);
-        reverseMap.put(url, shortUrl);
+        Optional<String> existing = urlMapRepository.findByUrl(url);
+        if(existing.isPresent()) return existing.get();
+        String shortUrl = "surlized" + (urlMapRepository.count() + 1);
+        urlMapRepository.save(new UrlMap(url,shortUrl));
         return shortUrl;
     }
 }

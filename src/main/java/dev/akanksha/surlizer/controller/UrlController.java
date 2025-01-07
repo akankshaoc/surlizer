@@ -16,7 +16,6 @@ import java.util.Optional;
 public class UrlController {
 
     private final UrlService urlService;
-
     @PostMapping("shorten")
     public ResponseEntity<Map<String, String>> shorten(@RequestBody Map<String, String> body) {
         return new ResponseEntity<>(
